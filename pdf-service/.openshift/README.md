@@ -5,12 +5,18 @@ Use Template to perform the initial OpenShift setup and initial deployment.  Sub
 ##
 ## 1. Common Setup
 
+### Setup ConfigMap (standalone, created once per environment)
+```bash
+oc apply -f configmap.yaml
+```
+
+TODO: This is already done by the gihub action
 ### Openshift: Create/update ImageStreams (source & destination)
 ```bash
 oc project <image ns>
 oc process -f image.yaml  |  oc apply -f -
 oc describe is/node
-oc describe is/formio-pdf
+oc describe is/pdf-service
 ```
 ### Set policy to allow runtime namespace to pull from image namespace
 ```bash
@@ -20,7 +26,7 @@ oc policy add-role-to-user system:image-puller system:serviceaccount:<runtime ns
 ### Create Deployment in the runtime namespace
 ```bash
 oc project <runtime image namespace>
-oc process -p IMAGE_NS=<image ns> -f formio-pdf.yaml  |  oc apply -f -
+oc process -p IMAGE_NS=<image ns> -f deploy.yaml  |  oc apply -f -
 ```
 
 ##
@@ -39,7 +45,7 @@ Confirm Action runs without errors and logs into your OpenShift
 ## add redeploy trigger for when image changes
 ## Not needed with this template, already included
 ```bash
-oc set triggers deploy/formio-pdf --from-image=formio-pdf:latest -c formio-pdf
+oc set triggers deploy/pdf-service --from-image=pdf-service:dev -c pdf-service
 ```
 
 ## Generate / fetch OpenShift token for GitHub actions.
