@@ -3,19 +3,28 @@
 Use Template to perform the initial OpenShift setup and initial deployment.  Subsequent builds and deployments triggered by GitHub Actions.  Openshift token must be saved as a GitHub Action secret for this repo.
 
 ##
-## 1. Common Setup
+## 1. Build Image on GitHub & Push to OpenShift registry
+
+### GitHub: Create Action Secrets
+- `OPENSHIFT_REGISTRY_URL`      : image-registry.apps.silver.devops.gov.bc.ca
+- `OPENSHIFT_TARGET_NAMESPACE`  : Namespace that contains the ImageStream (tools namespace)
+- `OPENSHIFT_TOKEN`             : token for service account (see below)
+
+### Run GitHub Action "build-pdf-service.yml"
+Confirm Action runs without errors
+
+##
+## 2. Common Deployment Setup
 
 ### Setup ConfigMap (standalone, created once per environment)
 ```bash
-oc apply -f configmap.yaml
+oc apply -f configmap.yaml -n <runtime ns>
 ```
 
-TODO: This is already done by the gihub action
-### Openshift: Create/update ImageStreams (source & destination)
+### Openshift: Ensure pdf-service image is in registry (ImageStreams)
+Note: We created the the image and pushed it to the registry (tools namespace) with the build-pdf-service.yml 
 ```bash
 oc project <image ns>
-oc process -f image.yaml  |  oc apply -f -
-oc describe is/node
 oc describe is/pdf-service
 ```
 ### Set policy to allow runtime namespace to pull from image namespace
@@ -25,22 +34,13 @@ oc policy add-role-to-user system:image-puller system:serviceaccount:<runtime ns
 
 ### Create Deployment in the runtime namespace
 ```bash
-oc project <runtime image namespace>
-oc process -p IMAGE_NS=<image ns> -f deploy.yaml  |  oc apply -f -
+oc process -p IMAGE_NS=<image-ns> -f deploy.yaml | oc apply -n <runtime-ns> -f -
 ```
 
+### Check openshift to confirm service is deployed an running as expected
+
 ##
-## 2. Build Image on GitHub & Push to OpenShift
-
-### GitHub: Create Action Secrets
-- `OPENSHIFT_REGISTRY`   : image-registry.apps.silver.devops.gov.bc.ca
-- `OPENSHIFT_NAMESPACE`  : Namespace that contains the ImageStream
-- `OPENSHIFT_TOKEN`      :tokrn for service account (see below)
-
-### Run GitHub Action "OpenShift Connection Test"
-Confirm Action runs without errors and logs into your OpenShift
-
-### Run GitHub Action "Build on GitHub & Push to OpenShift"
+## 3. Usefull commands and information
 
 ## add redeploy trigger for when image changes
 ## Not needed with this template, already included
