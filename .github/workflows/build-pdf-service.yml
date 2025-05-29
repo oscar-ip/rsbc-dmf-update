@@ -2,11 +2,11 @@ name: build-pdf-service
 
 on:
   workflow_dispatch:
-  # pull_request:
-  #   types: [opened, reopened, edited, synchronize]
-  #   paths:
-  #     - 'pdf-service/app/**'
-  #     - '.github/workflows/build-pdf-service.yml'
+  pull_request:
+    types: [opened, reopened, edited, synchronize]
+    paths:
+      - 'pdf-service/app/**'
+      - '.github/workflows/build-pdf-service.yml'
 
 env:
   IMAGE_NAME: pdf-service
