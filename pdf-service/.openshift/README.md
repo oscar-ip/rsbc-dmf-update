@@ -37,6 +37,11 @@ oc policy add-role-to-user system:image-puller system:serviceaccount:<runtime ns
 oc process -p IMAGE_NS=<image-ns> -f deploy.yaml | oc apply -n <runtime-ns> -f -
 ```
 
+### If you update the deployment yaml you can reapply it
+```bash
+oc apply -f deploy.yaml -n <runtime-ns>
+```
+
 ### Check openshift to confirm service is deployed an running as expected
 
 ##
